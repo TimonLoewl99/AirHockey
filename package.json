@@ -1,0 +1,17 @@
+{
+  "name": "airhockey",
+  "version": "1.0.0",
+  "description": "Air Hockey Game for \"OhmLine\"-Präsenzsimulator",
+  "main": "index.js",
+  "scripts": {
+    "startDev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "author": "Timon Löwl",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.1",
+    "nodemon": "^2.0.16",
+    "phaser": "^3.55.2"
+  }
+}
