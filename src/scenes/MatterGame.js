@@ -1,14 +1,18 @@
 //import Phaser from "phaser";
 
 var puk;
-var pusher;
+var pusher1;
+var pusher2;
 
 export default class Game extends Phaser.Scene {
   preload() {
     this.load.image("puk", "./assets/Puk.png");
-    this.load.image("pusher", "./assets/Pusher.png");
+    this.load.image("pusher1", "./assets/Pusher1.png");
+    this.load.image("pusher2", "./assets/Pusher2.png");
+    this.load.image("background", "./assets/Spielfeld.png");
   }
   create() {
+    this.add.image(250, 350, "background");
     // var scoreText = this.add.text(0, 0, "Hallo", {
     //   fontSize: "32px",
     //   color: "green",
@@ -27,16 +31,16 @@ export default class Game extends Phaser.Scene {
     var rightBorder = this.matter.add.rectangle(500, 0, 1, 1400, {
       isStatic: true,
     });
-    var topLeft = this.matter.add.rectangle(0, 0, 350, 50, {
+    var topLeft = this.matter.add.rectangle(0, 0, 350, 1, {
       isStatic: true,
     });
-    var topRight = this.matter.add.rectangle(500, 0, 350, 50, {
+    var topRight = this.matter.add.rectangle(500, 0, 350, 1, {
       isStatic: true,
     });
-    var bottomLeft = this.matter.add.rectangle(0, 700, 350, 50, {
+    var bottomLeft = this.matter.add.rectangle(0, 700, 350, 1, {
       isStatic: true,
     });
-    var bottomRight = this.matter.add.rectangle(500, 700, 350, 50, {
+    var bottomRight = this.matter.add.rectangle(500, 700, 350, 1, {
       isStatic: true,
     });
 
@@ -62,19 +66,33 @@ export default class Game extends Phaser.Scene {
     puk.setCollisionGroup(noDrag);
 
     var canDrag = this.matter.world.nextGroup();
-    pusher = this.matter.add.image(250, 600, "pusher");
+    pusher1 = this.matter.add.image(250, 600, "pusher1");
 
-    pusher.setBody({
+    pusher1.setBody({
       type: "circle",
       radius: 60,
     });
 
-    pusher.setMass(40);
-    pusher.setAngularVelocity(0);
+    pusher1.setMass(40);
+    pusher1.setAngularVelocity(0);
     //pusher.setRotation(0);
-    pusher.setCollisionGroup(canDrag);
-    pusher.setBounce(0.1);
-    pusher.setFriction(0.3, 0, 0);
+    pusher1.setCollisionGroup(canDrag);
+    pusher1.setBounce(0.1);
+    pusher1.setFriction(0.3, 0, 0);
+
+    pusher2 = this.matter.add.image(250, 100, "pusher2");
+
+    pusher2.setBody({
+      type: "circle",
+      radius: 60,
+    });
+
+    pusher2.setMass(40);
+    pusher2.setAngularVelocity(0);
+    //pusher.setRotation(0);
+    pusher2.setCollisionGroup(canDrag);
+    pusher2.setBounce(0.1);
+    pusher2.setFriction(0.3, 0, 0);
 
     // pusher.input.on("drag", function (dragX, dragY) {
     //   pusher.x = dragX;
@@ -84,7 +102,7 @@ export default class Game extends Phaser.Scene {
     // this.matter.add.mouseSpring();
     this.matter.add.mouseSpring({
       collisionFilter: { group: canDrag },
-      stiffness: 1,
+      //stiffness: 1,
     });
 
     // this.matter.add.mouseSpring({
@@ -101,6 +119,16 @@ export default class Game extends Phaser.Scene {
         puk.y = 350;
         puk.setAngularVelocity(0.01);
         puk.setVelocity(0);
+        //pusher1.setCollisionGroup(noDrag);
+        //pusher2.setCollisionGroup(noDrag);
+        pusher1.x = 250;
+        pusher1.y = 600;
+        pusher1.setAngularVelocity(0);
+        pusher1.setVelocity(0);
+        pusher2.x = 250;
+        pusher2.y = 100;
+        pusher2.setAngularVelocity(0);
+        pusher2.setVelocity(0);
       }, 500);
 
       //   pusher.x = 250;
