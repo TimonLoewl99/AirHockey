@@ -1,0 +1,65 @@
+canvas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scorecontainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 13em;
+  width: 10%;
+  margin-left: 10%;
+  background-color: #c0c2ce;
+  padding: 10px 90px 15px 90px;
+  border-radius: 10px;
+  position: absolute;
+  left: 400px;
+  /* top: 250px; */
+  z-index: -10;
+  box-shadow: inset 0px -5px 1px #afafaf, 6px 7px 3px rgba(66, 66, 66, 0.5);
+}
+
+.team {
+  width: 100px;
+  margin-top: 0px;
+  cursor: default;
+  height: 76px;
+  border: 0;
+  border-radius: 20px;
+  outline: none !important;
+  font-size: 70px;
+  font-family: "Bebas Neue", cursive;
+  display: block;
+  position: relative;
+  z-index: 5;
+  top: 15px;
+}
+
+#team1 {
+  background-color: #ff77bc;
+  box-shadow: inset 0 -5px 1px #ff0081, 6px 7px 3px rgba(66, 66, 66, 0.5);
+}
+
+#team2 {
+  background-color: #71c7ec;
+  box-shadow: inset 0 -5px 1px #189ad3, 6px 7px 3px rgba(66, 66, 66, 0.5);
+}
+
+.teamcontainer {
+  display: inline-block;
+  margin: 0 45px 40px 45px;
+  text-align: center;
+}
+
+h2 {
+  font-family: "Bebas Neue", cursive;
+  font-size: 30px;
+  background-color: #d2d4dc;
+  color: #383838;
+  border-radius: 10px;
+  font-weight: 800;
+  padding: 10px 15px 15px 15px;
+  box-shadow: inset 0 -5px 1px #afafaf, 6px 7px 3px rgba(66, 66, 66, 0.5);
+}

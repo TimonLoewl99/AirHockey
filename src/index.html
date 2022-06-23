@@ -3,63 +3,37 @@
   <head>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <style>
-      body {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <!-- <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap"
+      rel="stylesheet"
+    /> -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
   </head>
+  <!-- <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style> -->
   <body>
     <script type="module" src="./main.js"></script>
-
-    <!-- <script>
-      var config = {
-        type: Phaser.AUTO,
-        width: 800,
-        height: 600,
-        physics: {
-          default: "arcade",
-          arcade: {
-            gravity: { y: 200 },
-          },
-        },
-        scene: {
-          preload: preload,
-          create: create,
-        },
-      };
-
-      var game = new Phaser.Game(config);
-
-      function preload() {
-        this.load.setBaseURL("http://labs.phaser.io");
-
-        this.load.image("sky", "assets/skies/space3.png");
-        this.load.image("logo", "assets/sprites/phaser3-logo.png");
-        this.load.image("red", "assets/particles/red.png");
-      }
-
-      function create() {
-        this.add.image(400, 300, "sky");
-
-        var particles = this.add.particles("red");
-
-        var emitter = particles.createEmitter({
-          speed: 100,
-          scale: { start: 1, end: 0 },
-          blendMode: "ADD",
-        });
-
-        var logo = this.physics.add.image(400, 100, "logo");
-
-        logo.setVelocity(100, 200);
-        logo.setBounce(1, 1);
-        logo.setCollideWorldBounds(true);
-
-        emitter.startFollow(logo);
-      }
-    </script> -->
+    
+    <div class="scorecontainer">
+      <div class="teamcontainer">
+        <h2>Heim</h2>
+        <div class="team" id="team1">0</div>
+      </div> 
+      <div class="teamcontainer">
+        <h2>Gast</h2>
+        <div class="team" id="team2">0</div>
+      </div>
+    </div>
+  </div>
   </body>
 </html>

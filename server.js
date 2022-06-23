@@ -16,11 +16,27 @@ app.use(express.static("src"));
 io.on("connection", (socket) => {
   console.log("User connected");
 
-  socket.on("puk moved", (posX, posY) => {
+  // socket.on("set score1", (score1) => {
+  //   socket.broadcast.emit("score1", score1);
+  // });
+
+  // socket.on("set score2", (score2) => {
+  //   socket.broadcast.emit("score2", score2);
+  // });
+
+  socket.on("set score", (score1, score2) => {
+    socket.broadcast.emit("score", score1, score2);
+  });
+
+  socket.on("puk moved", (posX, posY, velX, velY, angVelX, angVelY) => {
     socket.broadcast.emit(
       "puk position",
       posX,
-      posY
+      posY,
+      velX,
+      velY,
+      angVelX,
+      angVelY
       // velocity,
       // angularVelocity
     );
