@@ -1,5 +1,4 @@
 //import Phaser from "phaser";
-
 var puk;
 var pusher1;
 var pusher2;
@@ -9,6 +8,7 @@ var socket = io();
 var setScore = true;
 var noDrag;
 var canDrag;
+var myId = {};
 
 export default class Game extends Phaser.Scene {
   preload() {
@@ -18,7 +18,16 @@ export default class Game extends Phaser.Scene {
     this.load.image("background", "./assets/Spielfeld.png");
   }
   create() {
-    socket.emit("connection");
+    //socket.emit("connection");
+    // Initial message on startup
+    socket.emit("getId");
+    socket.on("*id", function (args) {
+      myId = args;
+    });
+
+    this.input.keyboard.on("keydown-SPACE", () => {
+      console.log(JSON.stringify(myId));
+    });
 
     this.add.image(250, 350, "background");
     // var scoreText = this.add.text(0, 0, "Hallo", {
@@ -177,7 +186,7 @@ export default class Game extends Phaser.Scene {
     // socket.on("score2", (score2) => {
     //   $("#team2").html(score2);
     // });
-    console.log("velocity:" + puk.body.angularVelocity);
+    //console.log("velocity:" + puk.body.angularVelocity);
     //Position Puk WebSocket
     socket.emit(
       "puk moved",
@@ -187,6 +196,7 @@ export default class Game extends Phaser.Scene {
       puk.body.velocity.y,
       puk.body.angularVelocity
     );
+
     socket.on("puk position", (posX, posY, velX, velY, angVel) => {
       puk.x = posX;
       puk.y = posY;
