@@ -66,45 +66,36 @@ io.on("connection", (socket) => {
   //   socket.broadcast.emit("score2", score2);
   // });
 
-  setTimeout(function () {
-    socket.on("Switch collison state", (pusherId) => {
-      sender = pusherId;
-      socket.broadcast.emit("getSender", sender);
-    });
-  }, 0);
+  socket.on("Switch collison state", (pusherId) => {
+    sender = pusherId;
+    socket.broadcast.emit("getSender", sender);
+  });
 
   socket.on("set score", (score1, score2) => {
     socket.broadcast.emit("score", score1, score2);
   });
 
-  setTimeout(function () {
-    socket.on("puk moved", (posX, posY, velX, velY, angVelX, angVelY) => {
-      socket.broadcast.emit(
-        "puk position",
-        posX,
-        posY,
-        velX,
-        velY,
-        angVelX,
-        angVelY
-        // velocity,
-        // angularVelocity
-      );
-    });
-  }, 0);
+  socket.on("puk moved", (posX, posY, velX, velY, angVelX, angVelY) => {
+    socket.broadcast.emit(
+      "puk position",
+      posX,
+      posY,
+      velX,
+      velY,
+      angVelX,
+      angVelY
+      // velocity,
+      // angularVelocity
+    );
+  });
 
-  setTimeout(function () {
-    socket.on("pusher1 moved", (posX, posY) => {
-      socket.broadcast.emit("pusher1 position", posX, posY);
-    });
-  }, 10);
+  socket.on("pusher1 moved", (posX, posY) => {
+    socket.broadcast.emit("pusher1 position", posX, posY);
+  });
 
-  setTimeout(function () {
-    socket.on("pusher2 moved", (posX, posY) => {
-      console.log("Pusher 2 moved");
-      socket.broadcast.emit("pusher2 position", posX, posY);
-    });
-  }, 10);
+  socket.on("pusher2 moved", (posX, posY) => {
+    socket.broadcast.emit("pusher2 position", posX, posY);
+  });
 });
 
 httpServer.listen(3000, "192.168.0.247", () => {

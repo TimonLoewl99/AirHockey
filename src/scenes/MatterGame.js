@@ -194,6 +194,7 @@ export default class Game extends Phaser.Scene {
   update() {
     collision = this.matter.sat.collides(myPusher.body, puk.body).collided;
     if (collision === true) {
+      console.log(collision);
       socket.emit("Switch collison state", pusherId);
     }
     //Turn off angular velocity Pusher 1 + 2
@@ -252,7 +253,7 @@ export default class Game extends Phaser.Scene {
 
     socket.on("getSender", (senderId) => {
       sender = senderId;
-      console.log("###############################", sender, pusherId);
+      console.log("###", sender, pusherId);
     });
 
     if (sender === pusherId) {
@@ -289,14 +290,16 @@ export default class Game extends Phaser.Scene {
       Math.floor(pusherData.vx) !== Math.floor(myPusher.body.velocity.x) ||
       Math.floor(pusherData.vy) !== Math.floor(myPusher.body.velocity.y)
     ) {
-      socket.emit(
-        pusherEvent,
-        Math.floor(myPusher.x),
-        Math.floor(myPusher.y),
-        Math.floor(myPusher.body.angularVelocity),
-        Math.floor(myPusher.body.velocity.x),
-        Math.floor(myPusher.body.velocity.y)
-      );
+      setTimeout(function () {
+        socket.emit(
+          pusherEvent,
+          Math.floor(myPusher.x),
+          Math.floor(myPusher.y),
+          Math.floor(myPusher.body.angularVelocity),
+          Math.floor(myPusher.body.velocity.x),
+          Math.floor(myPusher.body.velocity.y)
+        );
+      }, 33);
       pusherData.x = myPusher.x;
       pusherData.y = myPusher.y;
       pusherData.av = myPusher.body.angularVelocity;
@@ -304,14 +307,12 @@ export default class Game extends Phaser.Scene {
       pusherData.vy = myPusher.body.velocity.y;
     }
 
-    setTimeout(function () {
-      socket.on(pusherPosition, (posX, posY, angularVelocity, velx, vely) => {
-        pusherState.pusher2.x = posX;
-        pusherState.pusher2.y = posY;
-        pusherState.pusher2.angularVelocity = angularVelocity;
-        pusherState.pusher2.velocity = { velx, vely };
-      });
-    }, 0);
+    socket.on(pusherPosition, (posX, posY, angularVelocity, velx, vely) => {
+      pusherState.pusher2.x = posX;
+      pusherState.pusher2.y = posY;
+      pusherState.pusher2.angularVelocity = angularVelocity;
+      pusherState.pusher2.velocity = { velx, vely };
+    });
     //Position Pusher1 WebSocket
     // socket.emit("pusher2 moved", pusher2.x, pusher2.y);
     // socket.on("pusher2 position", (posX, posY) => {
