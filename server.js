@@ -8,6 +8,9 @@ const io = new Server(httpServer, {
   /* options */
 });
 
+serverIndex = 1;
+var sender;
+
 const socket_by_cid = [];
 
 app.use(express.static("src"));
@@ -35,10 +38,18 @@ io.on("connection", (socket) => {
   socket_by_cid[cid] = socket;
 
   // initial websocket message containing ids
-  socket.on("getId", () => {
-    socket.emit("*id", { cid: cid });
-  });
 
+  socket.emit("*id", {
+    cid: cid,
+    pusher: serverIndex,
+  });
+  setTimeout(function () {
+    if (serverIndex === 1) {
+      serverIndex = 2;
+    } else if (serverIndex === 2) {
+      serverIndex = 1;
+    }
+  }, 0);
   logger(cid, `new websocket connection id ${cid}`);
 
   // cleanup on disconnect
@@ -55,33 +66,47 @@ io.on("connection", (socket) => {
   //   socket.broadcast.emit("score2", score2);
   // });
 
+  setTimeout(function () {
+    socket.on("Switch collison state", (pusherId) => {
+      sender = pusherId;
+      socket.broadcast.emit("getSender", sender);
+    });
+  }, 0);
+
   socket.on("set score", (score1, score2) => {
     socket.broadcast.emit("score", score1, score2);
   });
 
-  socket.on("puk moved", (posX, posY, velX, velY, angVelX, angVelY) => {
-    socket.broadcast.emit(
-      "puk position",
-      posX,
-      posY,
-      velX,
-      velY,
-      angVelX,
-      angVelY
-      // velocity,
-      // angularVelocity
-    );
-  });
+  setTimeout(function () {
+    socket.on("puk moved", (posX, posY, velX, velY, angVelX, angVelY) => {
+      socket.broadcast.emit(
+        "puk position",
+        posX,
+        posY,
+        velX,
+        velY,
+        angVelX,
+        angVelY
+        // velocity,
+        // angularVelocity
+      );
+    });
+  }, 0);
 
-  socket.on("pusher1 moved", (posX, posY) => {
-    socket.broadcast.emit("pusher1 position", posX, posY);
-  });
+  setTimeout(function () {
+    socket.on("pusher1 moved", (posX, posY) => {
+      socket.broadcast.emit("pusher1 position", posX, posY);
+    });
+  }, 10);
 
-  socket.on("pusher2 moved", (posX, posY) => {
-    socket.broadcast.emit("pusher2 position", posX, posY);
-  });
+  setTimeout(function () {
+    socket.on("pusher2 moved", (posX, posY) => {
+      console.log("Pusher 2 moved");
+      socket.broadcast.emit("pusher2 position", posX, posY);
+    });
+  }, 10);
 });
 
-httpServer.listen(3000, () => {
+httpServer.listen(3000, "192.168.0.247", () => {
   console.log("Server listening on Port " + port);
 });
