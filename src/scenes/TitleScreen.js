@@ -1,26 +1,79 @@
-//import Phaser from "phaser";
+//socket = io();
+var playerConnection = {
+  player1: false,
+  player2: false,
+};
 
+socket.on("player connection", (connection) => {
+  playerConnection.player1 = connection.player1;
+  playerConnection.player2 = connection.player2;
+});
+
+//import Phaser from "phaser";
 export default class TitleScreen extends Phaser.Scene {
-  preload() {}
+  preload() {
+    this.load.image("puk", "./assets/Puk.png");
+    this.load.image("pusher1", "./assets/Pusher1.png");
+    this.load.image("pusher2", "./assets/Pusher2.png");
+    this.load.image("background", "./assets/Spielfeld.png");
+  }
 
   create() {
-    const title = this.add.text(250, 350, "Air Hockey", {
+    this.add.image(250, 350, "background");
+    var btnPlayer1 = this.add.image(150, 500, "pusher1").setInteractive();
+    var btnPlayer2 = this.add.image(350, 500, "pusher2").setInteractive();
+    this.add.image(250, 350, "puk");
+
+    const title = this.add.text(250, 170, "Air Hockey", {
       fontSize: 40,
       fontFamily: '"Press Start 2P"',
+      color: "#000",
     });
 
     title.setOrigin(0.5, 0.5);
 
     this.add
-      .text(250, 400, "Drücke die Leertaste, um das Spiel zu starten", {
+      .text(250, 230, "Wähle einen Schläger!", {
         fontFamily: '"Press Start 2P"',
-        fontSize: 10,
+        fontSize: 15,
+        color: "000",
       })
       .setOrigin(0.5);
 
-    this.input.keyboard.once("keydown-SPACE", () => {
-      this.scene.start("mattergame");
-      console.log("Space pressed");
+    btnPlayer1.on("pointerdown", () => {
+      if (playerConnection.player1 === false) {
+        socket.emit("player1 connected");
+        this.scene.start("mattergame");
+      }
     });
+
+    btnPlayer1.on("pointerover", () => {
+      btnPlayer1.setTint(0xc0c2ce);
+    });
+
+    btnPlayer1.on("pointerout", function (event) {
+      btnPlayer1.clearTint();
+    });
+
+    btnPlayer2.on("pointerdown", () => {
+      if (playerConnection.player2 === false) {
+        socket.emit("player2 connected");
+        this.scene.start("mattergame");
+      }
+    });
+
+    btnPlayer2.on("pointerover", () => {
+      btnPlayer2.setTint(0xc0c2ce);
+      // socket.on("player connection", (connection) => {
+      //   playerConnection.player1 = connection.player1;
+      //   playerConnection.player2 = connection.player2;
+      // });
+    });
+
+    btnPlayer2.on("pointerout", function (event) {
+      btnPlayer2.clearTint();
+    });
+
+    console.log(playerConnection);
   }
 }

@@ -15,5 +15,13 @@
     "nodemon": "^2.0.16",
     "phaser": "^3.55.2",
     "socket.io": "^4.5.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TimonLoewl99/AirHockey.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TimonLoewl99/AirHockey/issues"
+  },
+  "homepage": "https://github.com/TimonLoewl99/AirHockey#readme"
 }

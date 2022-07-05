@@ -8,7 +8,7 @@ var pusherState = {
 
 var scorePlayer1 = 0;
 var scorePlayer2 = 0;
-var socket = io();
+//var socket = io();
 var setScore = true;
 var noDrag;
 var canDrag;
@@ -17,7 +17,6 @@ var pusherId = null;
 var pusherEvent = "";
 var pusherPosition = "";
 var myPusher;
-var notMyPusher;
 var collision;
 
 var pusherData = {
@@ -28,6 +27,7 @@ var pusherData = {
   vy: 0,
 };
 
+//Set up information at first connection
 socket.on("*id", function (args) {
   pusherId = args.pusher;
   console.log(pusherId);
@@ -45,29 +45,13 @@ export default class Game extends Phaser.Scene {
     this.load.image("pusher2", "./assets/Pusher2.png");
     this.load.image("background", "./assets/Spielfeld.png");
   }
+
   create() {
-    //socket.emit("connection");
-    // Initial message on startup
-    //socket.emit("getId");
-
-    this.input.keyboard.on("keydown-SPACE", () => {
-      console.log(JSON.stringify(myId));
-    });
-
+    //Set up gamefield
     this.add.image(250, 350, "background");
-    // var scoreText = this.add.text(0, 0, "Hallo", {
-    //   fontSize: "32px",
-    //   color: "green",
-    //   fontStyle: "bold",
-    // });
-
-    //world settings
-    // this.matter.world.setBounds().disableGravity();
     this.matter.world.disableGravity();
-
     //borders
     noDrag = this.matter.world.nextGroup();
-
     var leftBorder = this.matter.add.rectangle(0, 0, 1, 1400, {
       isStatic: true,
     });
@@ -87,115 +71,122 @@ export default class Game extends Phaser.Scene {
       isStatic: true,
     });
 
-    // leftBorder.setBody({
-    //   fillStyle: "red",
-    //   strokeStyle: "blue",
-    //   lineWidth: 3,
-    // });
-
+    //Set up puk
     puk = this.matter.add.image(250, 350, "puk");
     //  Change the body of puck to a circle with a radius of 30px
     puk.setBody({
       type: "circle",
       radius: 30,
     });
-
-    // //  Just make the body move around and bounce
-    // puk.setVelocity(0, 3);
+    // Make the body move around and bounce
     puk.setAngularVelocity(0.01);
     puk.setBounce(0.7);
     puk.setFriction(0.05, 0, 0);
     puk.setMass(5);
     puk.setCollisionGroup(noDrag);
 
+    //Set up myPusher
     canDrag = this.matter.world.nextGroup();
-
     myPusher = this.matter.add.image(
       250,
       pusherId === 1 ? 600 : 100,
       "pusher" + pusherId
     );
-
+    //  Change the body of puck to a circle with a radius of 60px
     myPusher.setBody({
       type: "circle",
       radius: 60,
     });
-
+    //Set physics
     myPusher.setMass(40);
-    //pusher1.setAngularVelocity(0);
-    //pusher.setRotation(0);
+    myPusher.setBounce(0.1);
+    myPusher.setFriction(0.3, 0, 0);
+    // Set colissionGroup for Drag&Drop
     if (myPusher.y > 350 || myPusher.y < 700) {
       myPusher.setCollisionGroup(canDrag);
     } else {
       myPusher.setCollisionGroup(noDrag);
     }
-
-    myPusher.setBounce(0.1);
-    myPusher.setFriction(0.3, 0, 0);
-
+    //fill pusherData object with data of my pusher
     pusherData.av = myPusher.body.angularVelocity;
     pusherData.vx = myPusher.body.velocity.x;
     pusherData.vy = myPusher.body.velocity.y;
     pusherData.x = myPusher.x;
     pusherData.y = myPusher.y;
 
-    console.log(pusherData);
-
-    const { angularVelocity, velocity } = myPusher.body;
-
-    socket.emit(`pusher${pusherId === 1 ? 2 : 1}-init`, {
-      angularVelocity,
-      velocity,
-      x: myPusher.x,
-      y: myPusher.y,
-    });
-
-    ///
+    //Set up pusher2
     pusherState.pusher2 = this.matter.add.image(
       250,
       myPusher.y === 100 ? 600 : 100,
       "pusher" + (pusherId === 1 ? 2 : 1)
     );
-
+    //  Change the body of puck to a circle with a radius of 60px
     pusherState.pusher2.setBody({
       type: "circle",
       radius: 60,
     });
 
+    //set physics
     pusherState.pusher2.setMass(40);
-    // pusher2.setAngularVelocity(0);
-    //pusher.setRotation(0);
-    pusherState.pusher2.setCollisionGroup(canDrag);
     pusherState.pusher2.setBounce(0.1);
     pusherState.pusher2.setFriction(0.3, 0, 0);
-
     pusherState.pusher2.setCollisionGroup(noDrag);
 
-    // pusher.input.on("drag", function (dragX, dragY) {
-    //   pusher.x = dragX;
-    //   pusher.y = dragY;
-    // });
-
-    // this.matter.add.mouseSpring();
-
+    //add Drag&Drop function to collisionGroup canDrag: myPusher
     this.matter.add.mouseSpring({
       collisionFilter: { group: canDrag },
     });
-
-    // this.matter.add.mouseSpring({
-    //   length: 1,
-    //   stiffness: 0.6,
-    //   collisionFilter: { group: canDrag },
-    // });
-    //myPusher = pusherState[`pusher${pusherId}`];
-    //notMyPusher = pusherState[`pusher${pusherId === 1 ? 2 : 1}`];
   }
 
+  //GameLoop
   update() {
     collision = this.matter.sat.collides(myPusher.body, puk.body).collided;
+
     if (collision === true) {
       console.log(collision);
-      socket.emit("Switch collison state", pusherId);
+      sender = pusherId;
+      setTimeout(function () {
+        socket.emit("Switch collison state", pusherId);
+        //console.log(pusherId);
+      }, 0);
+    }
+
+    setTimeout(function () {
+      socket.on("getSender", (senderId) => {
+        if (senderId !== pusherId) {
+          sender = senderId;
+          //console.log("###SENDER: ", sender);
+        }
+      });
+    }, 0);
+
+    if (sender === pusherId) {
+      // events senden
+      // Position Puk WebSocket
+      //console.log("HAHUIAHUDUGU SENDER: ", sender);
+      setTimeout(function () {
+        socket.emit(
+          "puk moved",
+          Math.floor(puk.x),
+          Math.floor(puk.y),
+          Math.floor(puk.body.velocity.x),
+          Math.floor(puk.body.velocity.y),
+          Math.floor(puk.body.angularVelocity)
+        );
+      }, 0);
+    } else {
+      // auf events hören
+      //puk.body.isStatic = true;
+      socket.on("puk position", (posX, posY, velX, velY, angVel) => {
+        puk.x = posX;
+        puk.y = posY;
+        puk.body.velocity.x = velX;
+        puk.body.velocity.y = velY;
+        puk.body.angularVelocity = angVel;
+        //console.log("#####PUUUUUK");
+        //console.log("puk moved");
+        // puk.setAngularVelocity(angVel);
+      });
     }
     //Turn off angular velocity Pusher 1 + 2
     myPusher.setAngularVelocity(0);
@@ -250,39 +241,6 @@ export default class Game extends Phaser.Scene {
     //console.log("velocity:" + puk.body.angularVelocity);
 
     //Position Pusher1 WebSocket
-
-    socket.on("getSender", (senderId) => {
-      sender = senderId;
-      console.log("###", sender, pusherId);
-    });
-
-    if (sender === pusherId) {
-      // events senden
-      // Position Puk WebSocket
-      setTimeout(function () {
-        socket.emit(
-          "puk moved",
-          puk.x,
-          puk.y,
-          puk.body.velocity.x,
-          puk.body.velocity.y,
-          puk.body.angularVelocity
-        );
-      }, 0);
-    } else {
-      // auf events hören
-      //puk.body.isStatic = true;
-      socket.on("puk position", (posX, posY, velX, velY, angVel) => {
-        puk.x = posX;
-        puk.y = posY;
-        puk.body.velocity.x = velX;
-        puk.body.velocity.y = velY;
-        puk.body.angularVelocity = angVel;
-        //console.log("puk moved");
-        // puk.setAngularVelocity(angVel);
-      });
-    }
-
     if (
       Math.floor(pusherData.x) !== Math.floor(myPusher.x) ||
       Math.floor(pusherData.y) !== Math.floor(myPusher.y) ||
@@ -290,12 +248,12 @@ export default class Game extends Phaser.Scene {
       Math.floor(pusherData.vx) !== Math.floor(myPusher.body.velocity.x) ||
       Math.floor(pusherData.vy) !== Math.floor(myPusher.body.velocity.y)
     ) {
+      //console.log("PUSHER MOVED");
       setTimeout(function () {
         socket.emit(
           pusherEvent,
           Math.floor(myPusher.x),
           Math.floor(myPusher.y),
-          Math.floor(myPusher.body.angularVelocity),
           Math.floor(myPusher.body.velocity.x),
           Math.floor(myPusher.body.velocity.y)
         );
@@ -307,10 +265,11 @@ export default class Game extends Phaser.Scene {
       pusherData.vy = myPusher.body.velocity.y;
     }
 
-    socket.on(pusherPosition, (posX, posY, angularVelocity, velx, vely) => {
+    socket.on(pusherPosition, (posX, posY, velx, vely) => {
+      //console.log("new Pos enemy");
       pusherState.pusher2.x = posX;
       pusherState.pusher2.y = posY;
-      pusherState.pusher2.angularVelocity = angularVelocity;
+      // pusherState.pusher2.angularVelocity = angularVelocity;
       pusherState.pusher2.velocity = { velx, vely };
     });
     //Position Pusher1 WebSocket
