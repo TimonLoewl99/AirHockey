@@ -9,6 +9,11 @@ socket.on("player connection", (connection) => {
   playerConnection.player2 = connection.player2;
 });
 
+socket.on("connection status", (connection) => {
+  playerConnection.player1 = connection.player1;
+  playerConnection.player2 = connection.player2;
+});
+
 //import Phaser from "phaser";
 export default class TitleScreen extends Phaser.Scene {
   preload() {
@@ -43,12 +48,15 @@ export default class TitleScreen extends Phaser.Scene {
     btnPlayer1.on("pointerdown", () => {
       if (playerConnection.player1 === false) {
         socket.emit("player1 connected");
+        //setTimeout
         this.scene.start("mattergame");
       }
     });
 
     btnPlayer1.on("pointerover", () => {
       btnPlayer1.setTint(0xc0c2ce);
+      socket.emit("update connection");
+      console.log(playerConnection);
     });
 
     btnPlayer1.on("pointerout", function (event) {
@@ -64,10 +72,8 @@ export default class TitleScreen extends Phaser.Scene {
 
     btnPlayer2.on("pointerover", () => {
       btnPlayer2.setTint(0xc0c2ce);
-      // socket.on("player connection", (connection) => {
-      //   playerConnection.player1 = connection.player1;
-      //   playerConnection.player2 = connection.player2;
-      // });
+      socket.emit("update connection");
+      console.log(playerConnection);
     });
 
     btnPlayer2.on("pointerout", function (event) {

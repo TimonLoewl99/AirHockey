@@ -59,24 +59,30 @@ io.on("connection", (socket) => {
   //     serverIndex = 1;
   //   }
   // }, 0);
+  socket.on("update connection", () => {
+    socket.emit("connection status", connection);
+  });
 
   socket.on("player1 connected", () => {
+    connection.player1 = true;
     socket.emit("*id", {
       cid: cid,
       pusher: 1,
     });
+    socket.emit("connection status", connection);
     cidPlayer1 = cid;
-    connection.player1 = true;
     console.log(connection);
   });
 
   socket.on("player2 connected", () => {
+    connection.player2 = true;
     socket.emit("*id", {
       cid: cid,
       pusher: 2,
     });
+    socket.emit("connection status", connection);
     cidPlayer2 = cid;
-    connection.player2 = true;
+    console.log(connection);
   });
 
   //logger(cid, `new websocket connection id ${cid} serverIndex ${serverIndex}`);
@@ -125,19 +131,23 @@ io.on("connection", (socket) => {
   });
 
   socket.on("pusher1 moved", (posX, posY, velX, velY) => {
-    socket.broadcast.emit("pusher1 position", posX, posY, velX, velY);
+    socket.broadcast.emit("other pusher position", posX, posY, velX, velY);
   });
 
   socket.on("pusher2 moved", (posX, posY, velX, velY) => {
-    socket.broadcast.emit("pusher2 position", posX, posY, velX, velY);
+    socket.broadcast.emit("other pusher position", posX, posY, velX, velY);
   });
 
   socket.on("set score", (score1, score2) => {
     socket.broadcast.emit("score", score1, score2);
   });
+
+  socket.on("update enemy position", (posX, posY, velX, velY) => {
+    socket.broadcast.emit("update my position", posX, posY, velX, velY);
+  });
 });
 
-// httpServer.listen(port, "192.168.0.247", () => {
+// httpServer.listen(port, "192.168.2.102", () => {
 //   console.log("Server listening on Port " + port);
 // });
 

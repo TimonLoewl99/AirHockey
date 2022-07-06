@@ -5,10 +5,8 @@ var pusherState = {
   pusher1: null,
   pusher2: null,
 };
-
 var scorePlayer1 = 0;
 var scorePlayer2 = 0;
-//var socket = io();
 var setScore = true;
 var noDrag;
 var canDrag;
@@ -18,6 +16,7 @@ var pusherEvent = "";
 var pusherPosition = "";
 var myPusher;
 var collision;
+var enemyColission;
 
 var pusherData = {
   x: 0,
@@ -44,6 +43,41 @@ export default class Game extends Phaser.Scene {
     this.load.image("pusher1", "./assets/Pusher1.png");
     this.load.image("pusher2", "./assets/Pusher2.png");
     this.load.image("background", "./assets/Spielfeld.png");
+
+    socket.on("getSender", (senderId) => {
+      if (senderId !== pusherId) {
+        sender = senderId;
+        //puk.setFriction(0.8, 0.8, 0.8);
+        console.log("###SENDER: ", sender);
+      }
+    });
+
+    socket.on("puk position", (posX, posY, velX, velY, angVel) => {
+      if (sender !== pusherId) {
+        puk.x = posX;
+        puk.y = posY;
+        puk.body.velocity.x = velX;
+        puk.body.velocity.y = velY;
+        puk.body.angularVelocity = angVel;
+        //console.log(posX, posY);
+      }
+      //console.log("#####PUUUUUK");
+      //console.log("puk moved");
+      // puk.setAngularVelocity(angVel);
+    });
+
+    socket.on("other pusher position", (posX, posY, velx, vely) => {
+      //console.log("new Pos enemy");
+      //pusherState.pusher2.stop();
+      pusherState.pusher2.setPosition(posX, posY);
+      pusherState.pusher2.setVelocity(velx, vely);
+      pusherState.pusher2.applyForce(new Phaser.Math.Vector2(0, 0));
+
+      // pusherState.pusher2.velocity.y = vely;
+
+      console.log(posX, posY, velx, vely);
+    });
+    // }
   }
 
   create() {
@@ -129,7 +163,7 @@ export default class Game extends Phaser.Scene {
     //set physics
     pusherState.pusher2.setMass(40);
     pusherState.pusher2.setBounce(0.1);
-    pusherState.pusher2.setFriction(0.3, 0, 0);
+    pusherState.pusher2.setFriction(0.8, 0.8, 0.8);
     pusherState.pusher2.setCollisionGroup(noDrag);
 
     //add Drag&Drop function to collisionGroup canDrag: myPusher
@@ -141,52 +175,34 @@ export default class Game extends Phaser.Scene {
   //GameLoop
   update() {
     collision = this.matter.sat.collides(myPusher.body, puk.body).collided;
+    enemyColission = this.matter.sat.collides(
+      pusherState.pusher2.body,
+      puk.body
+    ).collided;
 
     if (collision === true) {
+      puk.setFriction(0.05, 0, 0);
       console.log(collision);
       sender = pusherId;
-      setTimeout(function () {
-        socket.emit("Switch collison state", pusherId);
-        //console.log(pusherId);
-      }, 0);
+      socket.emit("Switch collison state", pusherId);
+      //console.log(pusherId);
     }
-
-    setTimeout(function () {
-      socket.on("getSender", (senderId) => {
-        if (senderId !== pusherId) {
-          sender = senderId;
-          //console.log("###SENDER: ", sender);
-        }
-      });
-    }, 0);
 
     if (sender === pusherId) {
       // events senden
       // Position Puk WebSocket
       //console.log("HAHUIAHUDUGU SENDER: ", sender);
-      setTimeout(function () {
-        socket.emit(
-          "puk moved",
-          Math.floor(puk.x),
-          Math.floor(puk.y),
-          Math.floor(puk.body.velocity.x),
-          Math.floor(puk.body.velocity.y),
-          Math.floor(puk.body.angularVelocity)
-        );
-      }, 0);
+      socket.emit(
+        "puk moved",
+        Math.floor(puk.x),
+        Math.floor(puk.y),
+        Math.floor(puk.body.velocity.x),
+        Math.floor(puk.body.velocity.y),
+        Math.floor(puk.body.angularVelocity)
+      );
     } else {
       // auf events hören
       //puk.body.isStatic = true;
-      socket.on("puk position", (posX, posY, velX, velY, angVel) => {
-        puk.x = posX;
-        puk.y = posY;
-        puk.body.velocity.x = velX;
-        puk.body.velocity.y = velY;
-        puk.body.angularVelocity = angVel;
-        //console.log("#####PUUUUUK");
-        //console.log("puk moved");
-        // puk.setAngularVelocity(angVel);
-      });
     }
     //Turn off angular velocity Pusher 1 + 2
     myPusher.setAngularVelocity(0);
@@ -195,10 +211,31 @@ export default class Game extends Phaser.Scene {
     // restrictMoveAreaPusher1();
     // restrictMoveAreaPusher2();
 
-    // setTimeout(function () {
-    //   console.log("Update");
-    // }, 500);
-    //console.log(pusher1.y);
+    //Position Pusher1 WebSocket
+    if (
+      Math.floor(pusherData.x) !== Math.floor(myPusher.x) ||
+      Math.floor(pusherData.y) !== Math.floor(myPusher.y) ||
+      Math.floor(pusherData.av) !== Math.floor(myPusher.body.angularVelocity) ||
+      Math.floor(pusherData.vx) !== Math.floor(myPusher.body.velocity.x) ||
+      Math.floor(pusherData.vy) !== Math.floor(myPusher.body.velocity.y)
+    ) {
+      //console.log("PUSHER MOVED");
+      // if (enemyColission === false) {
+
+      socket.emit(
+        pusherEvent,
+        Math.floor(myPusher.x),
+        Math.floor(myPusher.y),
+        Math.floor(myPusher.body.velocity.x),
+        Math.floor(myPusher.body.velocity.y)
+      );
+
+      pusherData.x = myPusher.x;
+      pusherData.y = myPusher.y;
+      pusherData.av = myPusher.body.angularVelocity;
+      pusherData.vx = myPusher.body.velocity.x;
+      pusherData.vy = myPusher.body.velocity.y;
+    }
 
     //Goal Detection + Reset Puk + Pusher
     if (puk.y <= -30 && setScore) {
@@ -221,63 +258,35 @@ export default class Game extends Phaser.Scene {
       $("#team2").html(scorePlayer2);
     }
 
-    // socket.emit("set score", scorePlayer1, scorePlayer2);
+    // console.log(enemyColission);
 
-    // socket.on("score", (score1, score2) => {
-    //   scorePlayer1 = score1;
-    //   scorePlayer2 = score2;
-    //   //console.log("test");
-    //   $("#team1").html(scorePlayer1);
-    //   $("#team2").html(scorePlayer2);
-    // });
-    // socket.on("score1", (score1) => {
-    //   console.log("socket:" + score1);
-    //   //$("#team1").html(score1);
-    // });
+    // if (enemyColission === true) {
+    //   console.log("my Pos updated");
+    //   socket.emit(
+    //     "update enemy position",
+    //     Math.floor(pusherState.pusher2.x),
+    //     Math.floor(pusherState.pusher2.y),
+    //     Math.floor(pusherState.pusher2.body.velocity.x),
+    //     Math.floor(pusherState.pusher2.body.velocity.y)
+    //   );
 
-    // socket.on("score2", (score2) => {
-    //   $("#team2").html(score2);
-    // });
-    //console.log("velocity:" + puk.body.angularVelocity);
+    //   socket.on("update my position", (x, y, velX, velY) => {
+    //     myPusher.x = x;
+    //     myPusher.y = y;
+    //     myPusher.velocity = { velX, velY };
+    //   });
 
-    //Position Pusher1 WebSocket
-    if (
-      Math.floor(pusherData.x) !== Math.floor(myPusher.x) ||
-      Math.floor(pusherData.y) !== Math.floor(myPusher.y) ||
-      Math.floor(pusherData.av) !== Math.floor(myPusher.body.angularVelocity) ||
-      Math.floor(pusherData.vx) !== Math.floor(myPusher.body.velocity.x) ||
-      Math.floor(pusherData.vy) !== Math.floor(myPusher.body.velocity.y)
-    ) {
-      //console.log("PUSHER MOVED");
-      setTimeout(function () {
-        socket.emit(
-          pusherEvent,
-          Math.floor(myPusher.x),
-          Math.floor(myPusher.y),
-          Math.floor(myPusher.body.velocity.x),
-          Math.floor(myPusher.body.velocity.y)
-        );
-      }, 33);
-      pusherData.x = myPusher.x;
-      pusherData.y = myPusher.y;
-      pusherData.av = myPusher.body.angularVelocity;
-      pusherData.vx = myPusher.body.velocity.x;
-      pusherData.vy = myPusher.body.velocity.y;
-    }
-
-    socket.on(pusherPosition, (posX, posY, velx, vely) => {
-      //console.log("new Pos enemy");
-      pusherState.pusher2.x = posX;
-      pusherState.pusher2.y = posY;
-      // pusherState.pusher2.angularVelocity = angularVelocity;
-      pusherState.pusher2.velocity = { velx, vely };
-    });
-    //Position Pusher1 WebSocket
-    // socket.emit("pusher2 moved", pusher2.x, pusher2.y);
-    // socket.on("pusher2 position", (posX, posY) => {
-    //   pusher2.x = posX;
-    //   pusher2.y = posY;
-    // });
+    //   socket.on("puk position", (posX, posY, velX, velY, angVel) => {
+    //     puk.x = posX;
+    //     puk.y = posY;
+    //     puk.body.velocity.x = velX;
+    //     puk.body.velocity.y = velY;
+    //     puk.body.angularVelocity = angVel;
+    //     //console.log("#####PUUUUUK");
+    //     //console.log("puk moved");
+    //     // puk.setAngularVelocity(angVel);
+    //   });
+    // }
   }
 }
 
@@ -301,36 +310,55 @@ function resetGame() {
   }, 500);
 }
 
-function restrictMoveAreaPusher1() {
-  //restrict move radius pusher1 top
-  if (pusherState.pusher1.y > 350) {
-    pusherState.pusher1.setCollisionGroup(canDrag);
-  } else {
-    pusherState.pusher1.setCollisionGroup(-1);
-    pusherState.pusher1.y = 350;
-  }
-  //restrict move radius pusher1 bottom
-  if (pusherState.pusher1.y <= 700) {
-    pusherState.pusher1.setCollisionGroup(canDrag);
-  } else {
-    pusherState.pusher1.setCollisionGroup(noDrag);
-    pusherState.pusher1.y = 700;
-  }
-}
+// function restrictMoveAreaPusher1() {
+//   //restrict move radius pusher1 top
+//   if (pusherState.pusher1.y > 350) {
+//     pusherState.pusher1.setCollisionGroup(canDrag);
+//   } else {
+//     pusherState.pusher1.setCollisionGroup(-1);
+//     pusherState.pusher1.y = 350;
+//   }
+//   //restrict move radius pusher1 bottom
+//   if (pusherState.pusher1.y <= 700) {
+//     pusherState.pusher1.setCollisionGroup(canDrag);
+//   } else {
+//     pusherState.pusher1.setCollisionGroup(noDrag);
+//     pusherState.pusher1.y = 700;
+//   }
+// }
 
-function restrictMoveAreaPusher2() {
-  //restrict move radius pusher2 top
-  if (pusherState.pusher2.y >= 0) {
-    pusherState.pusher2.setCollisionGroup(canDrag);
-  } else {
-    pusherState.pusher2.setCollisionGroup(noDrag);
-    pusherState.pusher2.y = 0;
-  }
-  //restrict move radius pusher2 bottom
-  if (pusherState.pusher2.y <= 350) {
-    pusherState.pusher2.setCollisionGroup(canDrag);
-  } else {
-    pusherState.pusher2.setCollisionGroup(noDrag);
-    pusherState.pusher2.y = 350;
-  }
-}
+// function restrictMoveAreaPusher2() {
+//   //restrict move radius pusher2 top
+//   if (pusherState.pusher2.y >= 0) {
+//     pusherState.pusher2.setCollisionGroup(canDrag);
+//   } else {
+//     pusherState.pusher2.setCollisionGroup(noDrag);
+//     pusherState.pusher2.y = 0;
+//   }
+//   //restrict move radius pusher2 bottom
+//   if (pusherState.pusher2.y <= 350) {
+//     pusherState.pusher2.setCollisionGroup(canDrag);
+//   } else {
+//     pusherState.pusher2.setCollisionGroup(noDrag);
+//     pusherState.pusher2.y = 350;
+//   }
+// }
+
+// socket.emit("set score", scorePlayer1, scorePlayer2);
+
+// socket.on("score", (score1, score2) => {
+//   scorePlayer1 = score1;
+//   scorePlayer2 = score2;
+//   //console.log("test");
+//   $("#team1").html(scorePlayer1);
+//   $("#team2").html(scorePlayer2);
+// });
+// socket.on("score1", (score1) => {
+//   console.log("socket:" + score1);
+//   //$("#team1").html(score1);
+// });
+
+// socket.on("score2", (score2) => {
+//   $("#team2").html(score2);
+// });
+//console.log("velocity:" + puk.body.angularVelocity);
