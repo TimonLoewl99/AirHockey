@@ -13,6 +13,11 @@ var sender;
 var cidPlayer1;
 var cidPlayer2;
 
+var score = {
+  player1: 0,
+  player2: 0,
+};
+
 var connection = {
   player1: false,
   player2: false,
@@ -47,23 +52,13 @@ io.on("connection", (socket) => {
   socket.emit("player connection", connection);
 
   // initial websocket message containing ids
-
-  // socket.emit("*id", {
-  //   cid: cid,
-  //   pusher: serverIndex,
-  // });
-  // setTimeout(function () {
-  //   if (serverIndex === 1) {
-  //     serverIndex = 2;
-  //   } else if (serverIndex === 2) {
-  //     serverIndex = 1;
-  //   }
-  // }, 0);
   socket.on("update connection", () => {
     socket.emit("connection status", connection);
   });
 
   socket.on("player1 connected", () => {
+    score.player1 = 0;
+    score.player2 = 0;
     connection.player1 = true;
     socket.emit("*id", {
       cid: cid,
@@ -75,6 +70,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("player2 connected", () => {
+    score.player1 = 0;
+    score.player2 = 0;
     connection.player2 = true;
     socket.emit("*id", {
       cid: cid,
@@ -102,13 +99,15 @@ io.on("connection", (socket) => {
     delete socket_by_cid[cid];
   });
 
-  // socket.on("set score1", (score1) => {
-  //   socket.broadcast.emit("score1", score1);
-  // });
+  socket.on("score player1", () => {
+    score.player1++;
+    io.emit("set score", score);
+  });
 
-  // socket.on("set score2", (score2) => {
-  //   socket.broadcast.emit("score2", score2);
-  // });
+  socket.on("score player2", () => {
+    score.player2++;
+    io.emit("set score", score);
+  });
 
   socket.on("Switch collison state", (pusherId) => {
     sender = pusherId;
@@ -145,12 +144,16 @@ io.on("connection", (socket) => {
   socket.on("update enemy position", (posX, posY, velX, velY) => {
     socket.broadcast.emit("update my position", posX, posY, velX, velY);
   });
+
+  socket.on("get game information", () => {
+    socket.emit("game over", score);
+  });
 });
 
-// httpServer.listen(port, "192.168.2.102", () => {
-//   console.log("Server listening on Port " + port);
-// });
-
-httpServer.listen(port, () => {
+httpServer.listen(port, "192.168.2.102", () => {
   console.log("Server listening on Port " + port);
 });
+
+// httpServer.listen(port, () => {
+//   console.log("Server listening on Port " + port);
+// });

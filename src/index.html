@@ -9,10 +9,8 @@
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap"
       rel="stylesheet"
     /> -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Press+Start+2P&display=swap"
-      rel="stylesheet"
-    />
+    <script type="module" src="./main.js" defer></script>
+
   </head>
   <!-- <style>
     body {
@@ -22,9 +20,8 @@
     }
   </style> -->
   <body>
-    <script type="module" src="./main.js">
-      
-    </script>
+    <div style="font-family:Press Start 2P; position:absolute; left:-1000px; visibility:hidden;">.</div>
+    <img id="background" src="./assets/HG.png" width="1920px" height="1080px">
     
     <div class="scorecontainer">
       <div class="teamcontainer">
@@ -39,6 +36,8 @@
   </div>
   <script>
     var socket = io();
+    
+    
   </script>
   </body>
 </html>

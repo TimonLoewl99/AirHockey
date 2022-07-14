@@ -4,15 +4,7 @@ var playerConnection = {
   player2: false,
 };
 
-socket.on("player connection", (connection) => {
-  playerConnection.player1 = connection.player1;
-  playerConnection.player2 = connection.player2;
-});
-
-socket.on("connection status", (connection) => {
-  playerConnection.player1 = connection.player1;
-  playerConnection.player2 = connection.player2;
-});
+//let font = new FontFace("Press Start 2P", "./fonts/PressStart2P-Regular.ttf");
 
 //import Phaser from "phaser";
 export default class TitleScreen extends Phaser.Scene {
@@ -21,6 +13,18 @@ export default class TitleScreen extends Phaser.Scene {
     this.load.image("pusher1", "./assets/Pusher1.png");
     this.load.image("pusher2", "./assets/Pusher2.png");
     this.load.image("background", "./assets/Spielfeld.png");
+
+    socket.on("player connection", (connection) => {
+      playerConnection.player1 = connection.player1;
+      playerConnection.player2 = connection.player2;
+    });
+
+    socket.on("connection status", (connection) => {
+      playerConnection.player1 = connection.player1;
+      playerConnection.player2 = connection.player2;
+    });
+
+    loadFont("Press Start 2P", "./fonts/PressStart2P-Regular.ttf");
   }
 
   create() {
@@ -49,6 +53,7 @@ export default class TitleScreen extends Phaser.Scene {
       if (playerConnection.player1 === false) {
         socket.emit("player1 connected");
         //setTimeout
+
         this.scene.start("mattergame");
       }
     });
@@ -82,4 +87,16 @@ export default class TitleScreen extends Phaser.Scene {
 
     console.log(playerConnection);
   }
+}
+
+function loadFont(name, url) {
+  var newFont = new FontFace(name, `url(${url})`);
+  newFont
+    .load()
+    .then(function (loaded) {
+      document.fonts.add(loaded);
+    })
+    .catch(function (error) {
+      return error;
+    });
 }
