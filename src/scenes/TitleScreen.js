@@ -4,9 +4,8 @@ var playerConnection = {
   player2: false,
 };
 
-//let font = new FontFace("Press Start 2P", "./fonts/PressStart2P-Regular.ttf");
+var faktor = 0.8;
 
-//import Phaser from "phaser";
 export default class TitleScreen extends Phaser.Scene {
   preload() {
     this.load.image("puk", "./assets/Puk.png");
@@ -28,13 +27,17 @@ export default class TitleScreen extends Phaser.Scene {
   }
 
   create() {
-    this.add.image(250, 350, "background");
-    var btnPlayer1 = this.add.image(150, 500, "pusher1").setInteractive();
-    var btnPlayer2 = this.add.image(350, 500, "pusher2").setInteractive();
-    this.add.image(250, 350, "puk");
+    this.add.image(250 * faktor, 350 * faktor, "background");
+    var btnPlayer1 = this.add
+      .image(150 * faktor, 500 * faktor, "pusher1")
+      .setInteractive();
+    var btnPlayer2 = this.add
+      .image(350 * faktor, 500 * faktor, "pusher2")
+      .setInteractive();
+    this.add.image(250 * faktor, 350 * faktor, "puk");
 
-    const title = this.add.text(250, 170, "Air Hockey", {
-      fontSize: 40,
+    const title = this.add.text(250 * faktor, 170 * faktor, "Air Hockey", {
+      fontSize: 40 * faktor,
       fontFamily: '"Press Start 2P"',
       color: "#000",
     });
@@ -42,9 +45,9 @@ export default class TitleScreen extends Phaser.Scene {
     title.setOrigin(0.5, 0.5);
 
     this.add
-      .text(250, 230, "Wähle einen Schläger!", {
+      .text(250 * faktor, 230 * faktor, "Wähle einen Schläger!", {
         fontFamily: '"Press Start 2P"',
-        fontSize: 15,
+        fontSize: 15 * faktor,
         color: "000",
       })
       .setOrigin(0.5);

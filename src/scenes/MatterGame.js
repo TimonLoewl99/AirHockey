@@ -1,4 +1,5 @@
 //import Phaser from "phaser";
+var faktor = 0.8;
 var puk;
 var sender = 1;
 var pusherState = {
@@ -50,7 +51,6 @@ export default class Game extends Phaser.Scene {
       if (senderId !== pusherId) {
         sender = senderId;
         //puk.setFriction(0.8, 0.8, 0.8);
-        //console.log("###SENDER: ", sender);
       }
     });
 
@@ -61,22 +61,15 @@ export default class Game extends Phaser.Scene {
         puk.body.velocity.x = velX;
         puk.body.velocity.y = velY;
         puk.body.angularVelocity = angVel;
-        //console.log(posX, posY);
       }
     });
 
     socket.on("other pusher position", (posX, posY, velx, vely) => {
-      //console.log("new Pos enemy");
-      //pusherState.pusher2.stop();
       pusherState.pusher2.setPosition(posX, posY);
       pusherState.pusher2.setVelocity(velx, vely);
       pusherState.pusher2.applyForce(new Phaser.Math.Vector2(0, 0));
-
-      // pusherState.pusher2.velocity.y = vely;
-
-      //console.log(posX, posY, velx, vely);
     });
-    // }
+
     socket.on("set score", (score) => {
       $("#team1").html(score.player1);
       $("#team2").html(score.player2);
@@ -87,39 +80,54 @@ export default class Game extends Phaser.Scene {
   }
 
   create() {
-    // setTimeout(function () {
-
-    // }, 1000);
     //Set up gamefield
-    this.add.image(250, 350, "background");
+    this.add.image(250 * faktor, 350 * faktor, "background");
     this.matter.world.disableGravity();
     //borders
     noDrag = this.matter.world.nextGroup();
-    var leftBorder = this.matter.add.rectangle(0, 0, 1, 1400, {
+    var leftBorder = this.matter.add.rectangle(0, 0, 1, 1400 * faktor, {
       isStatic: true,
     });
-    var rightBorder = this.matter.add.rectangle(500, 0, 1, 1400, {
+    var rightBorder = this.matter.add.rectangle(
+      500 * faktor,
+      0,
+      1,
+      1400 * faktor,
+      {
+        isStatic: true,
+      }
+    );
+    var topLeft = this.matter.add.rectangle(0, 0, 350 * faktor, 1, {
       isStatic: true,
     });
-    var topLeft = this.matter.add.rectangle(0, 0, 350, 1, {
+    var topRight = this.matter.add.rectangle(500 * faktor, 0, 350 * faktor, 1, {
       isStatic: true,
     });
-    var topRight = this.matter.add.rectangle(500, 0, 350, 1, {
-      isStatic: true,
-    });
-    var bottomLeft = this.matter.add.rectangle(0, 700, 350, 1, {
-      isStatic: true,
-    });
-    var bottomRight = this.matter.add.rectangle(500, 700, 350, 1, {
-      isStatic: true,
-    });
+    var bottomLeft = this.matter.add.rectangle(
+      0,
+      700 * faktor,
+      350 * faktor,
+      1,
+      {
+        isStatic: true,
+      }
+    );
+    var bottomRight = this.matter.add.rectangle(
+      500 * faktor,
+      700 * faktor,
+      350 * faktor,
+      1,
+      {
+        isStatic: true,
+      }
+    );
 
     //Set up puk
-    puk = this.matter.add.image(250, 350, "puk");
+    puk = this.matter.add.image(250 * faktor, 350 * faktor, "puk");
     //  Change the body of puck to a circle with a radius of 30px
     puk.setBody({
       type: "circle",
-      radius: 30,
+      radius: 30 * faktor,
     });
     // Make the body move around and bounce
     puk.setAngularVelocity(0.01);
@@ -127,8 +135,6 @@ export default class Game extends Phaser.Scene {
     puk.setFriction(0.05, 0, 0);
     puk.setMass(5);
     puk.setCollisionGroup(noDrag);
-
-    //add Drag&Drop function to collisionGroup canDrag: myPusher
   }
 
   //GameLoop
@@ -137,21 +143,21 @@ export default class Game extends Phaser.Scene {
       //Set up myPusher
       canDrag = this.matter.world.nextGroup();
       myPusher = this.matter.add.image(
-        250,
-        pusherId === 1 ? 600 : 100,
+        250 * faktor,
+        pusherId === 1 ? 600 * faktor : 100 * faktor,
         "pusher" + pusherId
       );
       //  Change the body of puck to a circle with a radius of 60px
       myPusher.setBody({
         type: "circle",
-        radius: 60,
+        radius: 60 * faktor,
       });
       //Set physics
       myPusher.setMass(40);
       myPusher.setBounce(0.1);
       myPusher.setFriction(0.3, 0, 0);
       // Set colissionGroup for Drag&Drop
-      if (myPusher.y > 350 || myPusher.y < 700) {
+      if (myPusher.y > 350 * faktor || myPusher.y < 700 * faktor) {
         myPusher.setCollisionGroup(canDrag);
       } else {
         myPusher.setCollisionGroup(noDrag);
@@ -165,14 +171,14 @@ export default class Game extends Phaser.Scene {
 
       //Set up pusher2
       pusherState.pusher2 = this.matter.add.image(
-        250,
-        myPusher.y === 100 ? 600 : 100,
+        250 * faktor,
+        myPusher.y === 100 * faktor ? 600 * faktor : 100 * faktor,
         "pusher" + (pusherId === 1 ? 2 : 1)
       );
       //  Change the body of puck to a circle with a radius of 60px
       pusherState.pusher2.setBody({
         type: "circle",
-        radius: 60,
+        radius: 60 * faktor,
       });
 
       //set physics
@@ -180,7 +186,7 @@ export default class Game extends Phaser.Scene {
       pusherState.pusher2.setBounce(0.1);
       pusherState.pusher2.setFriction(0.8, 0.8, 0.8);
       pusherState.pusher2.setCollisionGroup(noDrag);
-
+      //add Drag&Drop function to collisionGroup canDrag: myPusher
       this.matter.add.mouseSpring({
         collisionFilter: { group: canDrag },
       });
@@ -240,20 +246,19 @@ export default class Game extends Phaser.Scene {
       }
 
       //Goal Detection + Reset Puk + Pusher
-      if (puk.y <= -30 && setScore) {
+      if (puk.y <= -30 * faktor && setScore) {
         setScore = false;
         if (pusherId === 1) {
           socket.emit("score player1");
         }
         resetGame();
         // $("#team1").html(scorePlayer1);
-      } else if (puk.y >= 730 && setScore) {
+      } else if (puk.y >= 730 * faktor && setScore) {
         setScore = false;
         if (pusherId === 2) {
           socket.emit("score player2");
         }
         resetGame();
-        // $("#team2").html(scorePlayer2);
       }
 
       if (playerScore.player1 === 1 || playerScore.player2 === 1) {
@@ -265,18 +270,18 @@ export default class Game extends Phaser.Scene {
 
 function resetGame() {
   if (initialized === true) {
-    puk.x = 250;
-    puk.y = 350;
+    puk.x = 250 * faktor;
+    puk.y = 350 * faktor;
     puk.setAngularVelocity(0.01);
     puk.setVelocity(0);
     if (pusherId === 1) {
-      myPusher.x = 250;
-      myPusher.y = 600;
+      myPusher.x = 250 * faktor;
+      myPusher.y = 600 * faktor;
       myPusher.setAngularVelocity(0);
       myPusher.setVelocity(0);
     } else if (pusherId === 2) {
-      myPusher.x = 250;
-      myPusher.y = 100;
+      myPusher.x = 250 * faktor;
+      myPusher.y = 100 * faktor;
       myPusher.setAngularVelocity(0);
       myPusher.setVelocity(0);
     }
@@ -289,17 +294,17 @@ function resetGame() {
 function restrictMoveAreaPusher() {
   if (initialized === true) {
     //restrict move radius pusher
-    if (myPusher.y < 350 && pusherId === 1) {
-      myPusher.y = 350;
+    if (myPusher.y < 350 * faktor && pusherId === 1) {
+      myPusher.y = 350 * faktor;
       myPusher.setVelocity(0);
-    } else if (myPusher.y > 700 && pusherId === 1) {
-      myPusher.y = 700;
+    } else if (myPusher.y > 700 * faktor && pusherId === 1) {
+      myPusher.y = 700 * faktor;
       myPusher.setVelocity(0);
     } else if (myPusher.y < 0 && pusherId === 2) {
       myPusher.y = 0;
       myPusher.setVelocity(0);
-    } else if (myPusher.y > 350 && pusherId === 2) {
-      myPusher.y = 350;
+    } else if (myPusher.y > 350 * faktor && pusherId === 2) {
+      myPusher.y = 350 * faktor;
       myPusher.setVelocity(0);
     }
   }

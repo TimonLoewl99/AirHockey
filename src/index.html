@@ -10,7 +10,6 @@
       rel="stylesheet"
     /> -->
     <script type="module" src="./main.js" defer></script>
-
   </head>
   <!-- <style>
     body {
@@ -20,9 +19,8 @@
     }
   </style> -->
   <body>
-    <div style="font-family:Press Start 2P; position:absolute; left:-1000px; visibility:hidden;">.</div>
-    <img id="background" src="./assets/HG.png" width="1920px" height="1080px">
-    
+    <img id="background" src="./assets/HG.png" />
+
     <div class="scorecontainer">
       <div class="teamcontainer">
         <h2>Heim</h2>
@@ -34,10 +32,8 @@
       </div>
     </div>
   </div>
-  <script>
-    var socket = io();
-    
-    
-  </script>
+    <script>
+      var socket = io();
+    </script>
   </body>
 </html>

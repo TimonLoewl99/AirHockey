@@ -150,10 +150,10 @@ io.on("connection", (socket) => {
   });
 });
 
-httpServer.listen(port, "192.168.2.102", () => {
-  console.log("Server listening on Port " + port);
-});
-
-// httpServer.listen(port, () => {
+// httpServer.listen(port, "192.168.2.102", () => {
 //   console.log("Server listening on Port " + port);
 // });
+
+httpServer.listen(port, () => {
+  console.log("Server listening on Port " + port);
+});
